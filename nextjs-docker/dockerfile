@@ -1,0 +1,26 @@
+# Base image (stable & network friendly)
+FROM node:20
+
+# Working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (slow internet safe)
+RUN npm config set fetch-retries 5 \
+ && npm config set fetch-retry-mintimeout 20000 \
+ && npm config set fetch-retry-maxtimeout 120000 \
+ && npm install
+
+# Copy project files
+COPY . .
+
+# Build Next.js app
+RUN npm run build
+
+# Expose port
+EXPOSE 3000
+
+# Start Next.js on all interfaces
+CMD ["npx", "next", "start", "-H", "0.0.0.0"]
